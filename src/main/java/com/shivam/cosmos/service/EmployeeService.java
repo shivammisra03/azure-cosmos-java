@@ -8,7 +8,7 @@ public interface EmployeeService {
 
     Employee getEmployeeById(String id);
 
-    boolean createEmployee(Employee employee);
+    Employee createEmployee(Employee employee);
 
     int bulkCreate(List<Employee> employeeList);
 }

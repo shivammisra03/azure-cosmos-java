@@ -4,7 +4,6 @@ import com.azure.cosmos.CosmosAsyncContainer;
 import com.azure.cosmos.models.CosmosBulkItemResponse;
 import com.azure.cosmos.models.CosmosBulkOperations;
 import com.azure.cosmos.models.CosmosItemOperation;
-import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,6 @@ import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,7 +42,7 @@ public class EmployeeRepository {
         if (!CollectionUtils.isEmpty(employeeList)) {
             return employeeList.get(0);
         }
-        return Employee.builder().errorMessage(MessageFormat.format("No Employee exist with id : {0}", id)).build();
+        return Employee.builder().message(MessageFormat.format("No Employee exist with id : {0}", id)).build();
     }
 
     public void createEmployee(Employee employee) {

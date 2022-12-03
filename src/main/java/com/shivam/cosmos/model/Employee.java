@@ -17,7 +17,7 @@ public class Employee {
     private String name;
     private String org;
     private String city;
-    private String errorMessage;
+    private String message;
 
     @Override
     public String toString() {
@@ -26,7 +26,7 @@ public class Employee {
                 ", name='" + name + '\'' +
                 ", org='" + org + '\'' +
                 ", city='" + city + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

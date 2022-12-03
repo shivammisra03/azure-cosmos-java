@@ -22,14 +22,12 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     public Employee getEmployeeById(String id) {
         return employeeRepository.getEmployeeById(id);
-
     }
 
     @Override
-    public boolean createEmployee(Employee employee) {
-
+    public Employee createEmployee(Employee employee) {
         employeeRepository.createEmployee(employee);
-        return true;
+        return Employee.builder().message("Employee created successfully").build();
     }
 
     @Override
