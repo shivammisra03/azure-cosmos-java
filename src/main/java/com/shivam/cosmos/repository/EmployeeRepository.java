@@ -12,14 +12,17 @@ import com.shivam.cosmos.model.Employee;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.security.SecureRandom;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,7 +41,10 @@ public class EmployeeRepository {
         String query = "select * from c where c.id = \":empId\"";
         query = query.replace(":empId", id);
         List<Employee> employeeList = cosmosAsyncContainer.queryItems(query, null, Employee.class).collectList().block();
-        return employeeList.get(0);
+        if (!CollectionUtils.isEmpty(employeeList)) {
+            return employeeList.get(0);
+        }
+        return Employee.builder().errorMessage(MessageFormat.format("No Employee exist with id : {0}", id)).build();
     }
 
     public void createEmployee(Employee employee) {
