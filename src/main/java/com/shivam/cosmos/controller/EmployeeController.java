@@ -26,14 +26,14 @@ public class EmployeeController {
         return employeeService.createEmployee(employee);
     }
 
-    @GetMapping(path = "/get/{id}")
+    @GetMapping(path = "/get")
     Employee getEmployeeById(@RequestParam String id) {
         log.info("Fetching Employee with id : {}", id);
         return employeeService.getEmployeeById(id);
     }
 
     @PostMapping(path = "/bulk/create")
-    BulkResponse bulkCreate(@RequestParam List<Employee> employeeList) {
+    BulkResponse bulkCreate(@RequestBody List<Employee> employeeList) {
         int numberOfInputDocs = employeeList.size();
         int documentInserted = employeeService.bulkCreate(employeeList);
         return new BulkResponse(numberOfInputDocs, documentInserted);

@@ -4,6 +4,7 @@ import com.azure.cosmos.CosmosAsyncContainer;
 import com.azure.cosmos.models.CosmosBulkItemResponse;
 import com.azure.cosmos.models.CosmosBulkOperations;
 import com.azure.cosmos.models.CosmosItemOperation;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,15 +34,16 @@ public class EmployeeRepository {
     @Autowired
     ObjectMapper objectMapper;
 
-    public void getEmployeeById(String id) {
+    public Employee getEmployeeById(String id) {
         String query = "select * from c where c.id = \":empId\"";
         query = query.replace(":empId", id);
-        List<JsonNode> employeeList = cosmosAsyncContainer.queryItems(query, null, JsonNode.class).collectList().block();
-        employeeList.forEach(System.out::println);
+        List<Employee> employeeList = cosmosAsyncContainer.queryItems(query, null, Employee.class).collectList().block();
+        return employeeList.get(0);
     }
 
     public void createEmployee(Employee employee) {
         log.info("Saving employee object in cosmos with data : {}", employee);
+
         cosmosAsyncContainer.createItem(employee, null).block();
     }
 
@@ -50,7 +52,7 @@ public class EmployeeRepository {
         AtomicLong failureDocument = new AtomicLong(0);
         AtomicLong successDocument = new AtomicLong(0);
         Flux<CosmosItemOperation> cosmosItemOperations = Flux.fromIterable(employeeList).map(document ->
-                CosmosBulkOperations.getUpsertItemOperation(document, new PartitionKey("")));
+                CosmosBulkOperations.getUpsertItemOperation(document, new PartitionKey(document.get("id").textValue())));
 
         cosmosAsyncContainer.executeBulkOperations(cosmosItemOperations).retryWhen(
                 reactor.util.retry.Retry.backoff(5, Duration.ofSeconds(3))
@@ -71,7 +73,7 @@ public class EmployeeRepository {
             if (cosmosBulkOperationResponse.getException() != null) {
                 failureDocument.getAndIncrement();
                 log.error("Bulk operation Failed", cosmosBulkOperationResponse.getException());
-            } else if (cosmosBulkOperationResponse.getResponse() != null || !cosmosBulkOperationResponse.getResponse().isSuccessStatusCode()) {
+            } else if (cosmosBulkOperationResponse.getResponse() != null && !cosmosBulkOperationResponse.getResponse().isSuccessStatusCode()) {
                 failureDocument.getAndIncrement();
                 log.error("Bulk operation for item : {}, and data : {} Failed with response code : {}",
                         cosmosItemOperation.<JsonNode>getItem().get("id"),
