@@ -38,10 +38,10 @@ public class EmployeeController {
         return ResponseEntity.ok().body(employee);
     }
 
-    @PostMapping(path = "/bulk/create")
+    @PostMapping(path = "/bulk/upsert")
     BulkResponse bulkCreate(@RequestBody List<Employee> employeeList) {
         int numberOfInputDocs = employeeList.size();
-        int documentInserted = employeeService.bulkCreate(employeeList);
+        int documentInserted = employeeService.bulkUpsert(employeeList);
         return new BulkResponse(numberOfInputDocs, documentInserted);
 
     }

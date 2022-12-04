@@ -10,5 +10,5 @@ public interface EmployeeService {
 
     Employee createEmployee(Employee employee);
 
-    int bulkCreate(List<Employee> employeeList);
+    int bulkUpsert(List<Employee> employeeList);
 }

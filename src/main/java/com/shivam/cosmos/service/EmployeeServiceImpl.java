@@ -36,11 +36,11 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    public int bulkCreate(List<Employee> employeeList) {
+    public int bulkUpsert(List<Employee> employeeList) {
         List<JsonNode> itemsToBeInserted = new LinkedList<>();
         for(Employee e : employeeList){
             itemsToBeInserted.add(objectMapper.convertValue(e, JsonNode.class));
         }
-        return employeeRepository.bulk(itemsToBeInserted);
+        return employeeRepository.bulkUpsert(itemsToBeInserted);
     }
 }

@@ -35,6 +35,12 @@ public class EmployeeRepository {
 
     BinaryOperator<Double> ADD = Double::sum;
 
+    /**
+     * fetches the details of an employee based on the id provided as input
+     *
+     * @param id
+     * @return
+     */
     public Employee getEmployeeById(String id) {
         String query = "select * from c where c.id = \":empId\"";
         query = query.replace(":empId", id);
@@ -45,13 +51,24 @@ public class EmployeeRepository {
         return Employee.builder().message(MessageFormat.format("No Employee exist with id : {0}", id)).build();
     }
 
+    /**
+     * creates and employee from the information provided as input into cosmos
+     *
+     * @param employee
+     */
     public void createEmployee(Employee employee) {
         log.info("Saving employee object in cosmos with data : {}", employee);
 
         cosmosAsyncContainer.createItem(employee, null).block();
     }
 
-    public int bulk(List<JsonNode> employeeList) {
+    /**
+     * gets the details of an employee and upserts its information in Cosmos
+     *
+     * @param employeeList
+     * @return
+     */
+    public int bulkUpsert(List<JsonNode> employeeList) {
         AtomicReference<Double> totalRequestCharges = new AtomicReference<>(0.0);
         AtomicLong failureDocument = new AtomicLong(0);
         AtomicLong successDocument = new AtomicLong(0);
