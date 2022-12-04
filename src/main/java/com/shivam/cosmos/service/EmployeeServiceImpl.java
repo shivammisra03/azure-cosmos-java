@@ -1,5 +1,6 @@
 package com.shivam.cosmos.service;
 
+import com.azure.cosmos.implementation.ConflictException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shivam.cosmos.model.Employee;
@@ -26,8 +27,12 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public Employee createEmployee(Employee employee) {
-        employeeRepository.createEmployee(employee);
-        return Employee.builder().message("Employee created successfully").build();
+        try {
+            employeeRepository.createEmployee(employee);
+            return Employee.builder().message("Employee created successfully").build();
+        } catch (ConflictException ce){
+            return Employee.builder().message("Employee already exist with the given id. Please use a different id").build();
+        }
     }
 
     @Override

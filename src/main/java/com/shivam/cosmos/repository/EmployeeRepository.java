@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BinaryOperator;
 
 @Repository
 @Log4j2
@@ -32,8 +33,7 @@ public class EmployeeRepository {
     @Autowired
     CosmosAsyncContainer cosmosAsyncContainer;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    BinaryOperator<Double> ADD = Double::sum;
 
     public Employee getEmployeeById(String id) {
         String query = "select * from c where c.id = \":empId\"";
@@ -85,12 +85,13 @@ public class EmployeeRepository {
                         cosmosBulkItemResponse.getStatusCode());
             } else {
                 successDocument.getAndIncrement();
+                totalRequestCharges.getAndAccumulate(cosmosBulkItemResponse.getRequestCharge(), ADD);
             }
             return Mono.just(cosmosBulkItemResponse);
         }).doOnError(Exception.class, exception -> failureDocument.getAndIncrement())
                 .publishOn(Schedulers.boundedElastic()).blockLast();
 
-        log.info("Bulk Item Upsert Completed - total success document [{}], Failure Documents [{}], Consumerd RUS [{}]",
+        log.info("Bulk Item Upsert Completed - total success document [{}], Failure Documents [{}], Consumed RUS [{}]",
                 successDocument, failureDocument, totalRequestCharges);
         return successDocument.intValue();
     }
